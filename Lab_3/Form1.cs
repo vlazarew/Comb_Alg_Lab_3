@@ -12,23 +12,48 @@ namespace Lab_3
 {
     public partial class MainForm : Form
     {
-        const int radius = 15;
+        //Поле, в котором мы рисуем
+        Graphics graphics;
+        //Высота окна главной формы
+        int captionHeight;
+        //Границы главной формы
+        Size borderSize;
 
+        //Список вершин графа
+        ListOfPoints list_of_points;
+
+        //Матрица смежности графа
+        int[][] Graph;
+        enum Set : byte { };
+        int[] Array;
+
+        //Цвета, в которые будет краситься граф
+        Color[] Colors = new Color[] { Color.Green, Color.Red, Color.Purple, Color.Blue, Color.Yellow, Color.Aqua,
+            Color.Maroon, Color.Olive, Color.Navy, Color.Teal, Color.Fuchsia, Color.Lime };
+
+        //Структура, хранящая в себе координаты нашего указателя мыши
         public struct MouseCoordinates
         {
-            int MouseX;
-            int MouseY;
+            public int MouseX;
+            public int MouseY;
         }
 
-        enum Colors
+        //Получение координат мыши относительно холста для рисования
+        public MouseCoordinates TakeCoordinates()
         {
-            clGreen, clRed, clPurple, clBlue, clYellow, clAqua,
-            clMaroon, clOlive, clNavy, clTeal, clFuchsia, clLime
-        };
+            MouseCoordinates result;
+            result.MouseX = MousePosition.X - this.Location.X - 2 * borderSize.Width - pictureBoxGraph.Location.X; // Позиция мыши на экране - Позиция главной формы на экране - Позиция picturebox на главной форме - 2 границы главной формы
+            result.MouseY = MousePosition.Y - this.Location.Y - captionHeight - pictureBoxGraph.Location.Y; // шапка формы потому что
+            return result;
+        }
 
         public MainForm()
         {
             InitializeComponent();
+            graphics = pictureBoxGraph.CreateGraphics();
+            captionHeight = SystemInformation.CaptionHeight;
+            borderSize = SystemInformation.BorderSize;
+            list_of_points = new ListOfPoints();
         }
 
         private void buttonAbout_Click(object sender, EventArgs e)
@@ -38,45 +63,23 @@ namespace Lab_3
 
         private void buttonRun_Click(object sender, EventArgs e)
         {
-            Bitmap bmp = new Bitmap(200, 200);
-            Graphics g = Graphics.FromImage(bmp);
-            Brush b = new SolidBrush(Color.Black);
-            g.FillPie(b, new Rectangle(0, 0, 200, 200), -90, 90);
-            g.FillPolygon(b, new PointF[] { new PointF(100, 100), new PointF(200, 100), new PointF(100, 200) });
-            pictureBoxGraph.Image = bmp;
+
         }
 
         private void pictureBoxGraph_MouseDown(object sender, MouseEventArgs e)
         {
-            Graphics graphics = pictureBoxGraph.CreateGraphics();
-            int captionHeight = SystemInformation.CaptionHeight;
-            Size borderSize = SystemInformation.BorderSize;
-            int X = MousePosition.X - this.Location.X - 2 * borderSize.Width - pictureBoxGraph.Location.X; // Позиция мыши на экране - Позиция главной формы на экране - Позиция picturebox на главной форме - 2 границы главной формы
-            int Y = MousePosition.Y - this.Location.Y - captionHeight - pictureBoxGraph.Location.Y; // шапка формы потому что
+            MouseCoordinates coordinates = TakeCoordinates();
             if (e.Button == MouseButtons.Left)
             {
-                Pen blackPen = new Pen(Color.Black, 3);
-                graphics.DrawEllipse(blackPen, X - radius, Y - radius, radius, radius);
-                graphics.FillEllipse(Brushes.Black, X - radius, Y - radius, radius, radius);
+                MyPoint myPoint = new MyPoint(coordinates.MouseX, coordinates.MouseY, graphics);
+                list_of_points.Add(myPoint);
+                myPoint.Draw(0);
             }
             if (e.Button == MouseButtons.Right)
             {
-                Pen redPen = new Pen(Color.Red, 3);
-                graphics.DrawEllipse(redPen, X - radius, Y - radius, radius, radius);
+                //myPoint.Draw(2);
             }
         }
 
-        /*public MouseCoordinates TakeCoordinates()
-        {
-            int X = MousePosition.X - this.Location.X - 2 * borderSize.Height - 2 * borderSize.Width;
-            int Y = MousePosition.Y - this.Location.Y - captionHeight; // шапка формы потому что
-            MouseCoordinates result = new MouseCoordinates(X, Y);
-            return result;
-        }
-
-        public bool HasPoint(int x, int y)
-        {
-            bool result = ;
-        }*/
     }
 }
