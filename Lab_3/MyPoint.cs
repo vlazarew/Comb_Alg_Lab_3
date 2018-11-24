@@ -39,20 +39,25 @@ namespace Lab_3
         // 2 - сделать цветную окантовку (выделение вершины для соединения)
         public void Draw(int status, Color _color)
         {
-            if (status == 0)
-            {
-                Pen blackPen = new Pen(Color.Black, 3);
-                graphics.DrawEllipse(blackPen, X - radius, Y - radius, 2 * radius, 2 * radius);
-                SolidBrush brush = new SolidBrush(_color);
-                graphics.FillEllipse(brush, X - radius, Y - radius, 2 * radius, 2 * radius);
-                //graphics.FillEllipse(Brushes.Black, X - radius, Y - radius, 2 * radius, 2 * radius);
-            }
             if (status == 1)
             {
                 Pen blackPen = new Pen(Color.Black, 3);
                 graphics.DrawEllipse(blackPen, X - radius, Y - radius, 2 * radius, 2 * radius);
                 SolidBrush brush = new SolidBrush(_color);
                 graphics.FillEllipse(brush, X - radius, Y - radius, 2 * radius, 2 * radius);
+            }
+        }
+
+        // 0 - заполнить черным цветом (создание вершины)
+        // 1 - заполнить пользовательским цветом при прогоне алгоритма
+        // 2 - сделать цветную окантовку (выделение вершины для соединения)
+        public void Draw(int status)
+        {
+            if (status == 0)
+            {
+                Pen blackPen = new Pen(Color.Black, 3);
+                graphics.DrawEllipse(blackPen, X - radius, Y - radius, 2 * radius, 2 * radius);
+                graphics.FillEllipse(Brushes.Black, X - radius, Y - radius, 2 * radius, 2 * radius);
             }
             if (status == 2)
             {

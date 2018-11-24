@@ -27,7 +27,6 @@ namespace Lab_3
         //Матрица смежности графа
         int[,] graph;
 
-        enum Set : byte { };
 
         int[] temp_array;
 
@@ -37,7 +36,7 @@ namespace Lab_3
         }
 
         //Цвета, в которые будет краситься граф
-        Color[] Colors = new Color[] { Color.Green, Color.Red, Color.Purple, Color.Blue, Color.Yellow, Color.Aqua,
+        Color[] colors = new Color[] { Color.Green, Color.Red, Color.Purple, Color.Blue, Color.Yellow, Color.Aqua,
             Color.Maroon, Color.Olive, Color.Navy, Color.Teal, Color.Fuchsia, Color.Lime };
 
         //Структура, хранящая в себе координаты нашего указателя мыши
@@ -65,6 +64,7 @@ namespace Lab_3
             list_of_points = new ListOfPoints();
             graph = new int[0, 0];
             radius = 10;
+            temp_array = new int[0];
         }
 
         private void buttonAbout_Click(object sender, EventArgs e)
@@ -74,7 +74,7 @@ namespace Lab_3
 
         private void buttonRun_Click(object sender, EventArgs e)
         {
-
+            Algorithms.RunExactSolution(list_of_points, colors, graph, temp_array);
         }
 
         private void pictureBoxGraph_MouseDown(object sender, MouseEventArgs e)
@@ -86,29 +86,39 @@ namespace Lab_3
                 MyPoint myPoint = new MyPoint(coordinates.MouseX, coordinates.MouseY, graphics, radius);
                 if (!list_of_points.Cross(myPoint.GetX(), myPoint.GetY()))
                 {
-                    myPoint.Draw(0, Color.Black);
+                    myPoint.Draw(0);
                     list_of_points.Add(myPoint);
 
                     if (graph.Length > 0)
                     {
                         int count = list_of_points.Count();
                         int[,] result = new int[count, count];
-                        for (int i = 0; i < count - 2; i++)
+                        for (int i = 0; i < count - 1; i++)
                         {
-                            for (int j = 0; j < count - 2; j++)
+                            for (int j = 0; j < count - 1; j++)
                             {
                                 result[i, j] = graph[i, j];
                             }
                             result[i, count - 1] = 0;
                         }
-                        for (int i = 0; i < count - 1; i++)
+                       /* for (int i = 0; i < count - 1; i++)
                         {
                             result[i, count - 1] = 0;
-                        }
+                        }*/
                         graph = result;
+
+                        int[] temp_result = new int[count];
+                        for (int i = 0; i < count - 2; i++)
+                        {
+                            temp_result[i] = temp_array[i];
+                        }
+                        //temp_result[count - 1] = 0;
+                        temp_array = temp_result;
+
                     }
                     else
                     {
+                        temp_array = new int[1];
                         graph = new int[1, 1];
                     }
                 }
@@ -117,27 +127,28 @@ namespace Lab_3
                     int i = list_of_points.IndexOfPoint(myPoint.GetX(), myPoint.GetY());
                     MyPoint temp = list_of_points.GetPoint(i);
                     temp.SetChoose(false);
-                    temp.Draw(0, Color.Black);
+                    temp.Draw(0);
                 }
             }
             //Левая кнопка мыши - выделение узла для установки связи
             if (e.Button == MouseButtons.Left)
             {
-                MyPoint myPoint = new MyPoint(coordinates.MouseX, coordinates.MouseY, graphics, radius);
-                if (list_of_points.Cross(myPoint.GetX(), myPoint.GetY()))
+                //MyPoint myPoint = new MyPoint(coordinates.MouseX, coordinates.MouseY, graphics, radius);
+                //MouseCoordinates coordinates = TakeCoordinates();
+                if (list_of_points.Cross(coordinates.MouseX, coordinates.MouseY))
                 {
-                    int i = list_of_points.IndexOfPoint(myPoint.GetX(), myPoint.GetY());
+                    int i = list_of_points.IndexOfPoint(coordinates.MouseX, coordinates.MouseY);
                     MyPoint temp = list_of_points.GetPoint(i);
                     temp.SetChoose(true);
-                    temp.Draw(0, Color.Black);
-                    temp.Draw(2, Color.Red);
+                    temp.Draw(0);
+                    temp.Draw(2);
                     if (list_of_points.Selected() == 2)
                     {
-                        temp.Draw(0, Color.Black);
+                        temp.Draw(0);
                         temp.SetChoose(false);
                         int j = list_of_points.GetChoosen();
                         MyPoint temp_point_2 = list_of_points.GetPoint(j);
-                        temp_point_2.Draw(0, Color.Black);
+                        temp_point_2.Draw(0);
                         temp_point_2.SetChoose(false);
                         Pen pen_line = new Pen(Color.Black, 2);
                         graphics.DrawLine(pen_line, temp.GetX(), temp.GetY(), temp_point_2.GetX(), temp_point_2.GetY());
@@ -149,13 +160,13 @@ namespace Lab_3
         }
 
         //Покраска графа с помощью массива цветов
-        public void DrawColor()
+        public void DrawColor(int[] temp_array)
         {
             int count = list_of_points.Count();
             for (int i = 0; i < count - 1; i++)
             {
                 MyPoint point = list_of_points.GetPoint(i);
-                point.Draw(1, Colors[i]);
+                point.Draw(1, Color.Black);
             }
         }
 
@@ -165,7 +176,6 @@ namespace Lab_3
             list_of_points = new ListOfPoints();
             graph = new int[0, 0];
             temp_array = new int[0];
-
         }
     }
 }
