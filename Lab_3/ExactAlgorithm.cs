@@ -7,52 +7,62 @@ using System.Threading.Tasks;
 
 namespace Lab_3
 {
-    class Algorithms
+    class ExactAlgorithm
     {
-        /*private ListOfPoints list_of_points;
+        private ListOfPoints list_of_points;
         private Color[] colors;
         private int[,] graph;
-        private HashSet<int> set;
-        private int[] temp_array;
+        private int[] color_array;
+        private int min_chromatic;
 
         private static int count;
 
         public int[] GetResultArray()
         {
-            return temp_array;
+            return color_array;
         }
 
-        public Algorithms(ListOfPoints _list_of_points, Color[] _colors, int[,] _graph, HashSet<int> _set, int[] _temp_array)
+        public int GetMinChromatic()
+        {
+            min_chromatic = 0;
+            for (int i = 0; i < color_array.Length; i++)
+            {
+                if (min_chromatic < color_array[i])
+                {
+                    min_chromatic = color_array[i];
+                }
+            }
+            return min_chromatic + 1;
+        }
+
+        public ExactAlgorithm(ListOfPoints _list_of_points, Color[] _colors, int[,] _graph, int[] _color_array)
         {
             list_of_points = _list_of_points;
             colors = _colors;
             graph = _graph;
-            set = _set;
-            temp_array = _temp_array;
+            color_array = _color_array;
             count = list_of_points.Count();
-        }*/
+        }
 
-
-        public static void RunExactSolution(ListOfPoints list_of_points, Color[] colors, int[,] graph, int[] temp_array)
+        public void RunExactSolution()
         {
             HashSet<int> result_set = new HashSet<int>();
-            int count = list_of_points.Count();
             for (int i = 0; i <= count - 1; i++)
             {
-                temp_array[i] = 0;
+                color_array[i] = 0;
+
             }
 
             for (int i = 0; i <= count - 1; i++)
             {
                 result_set.Add(i);
-                temp_array[i] = ExactSolution(i, result_set, count, graph, temp_array, colors);
+                color_array[i] = ExactSolution(i, result_set);
                 MyPoint myPoint = list_of_points.GetPoint(i);
-                myPoint.Draw(1, colors[temp_array[i]]);
+                myPoint.Draw(1, colors[color_array[i]]);
             }
-
         }
 
-        public static int ExactSolution(int index, HashSet<int> result_set, int count, int[,] graph, int[] temp_array, Color[] colors)
+        public int ExactSolution(int index, HashSet<int> result_set)
         {
             HashSet<int> ColorSet = new HashSet<int>();
             bool check = false;
@@ -62,7 +72,7 @@ namespace Lab_3
             {
                 if (result_set.Contains(j) && (graph[index, j] == 1))
                 {
-                    ColorSet.Add(temp_array[j]);
+                    ColorSet.Add(color_array[j]);
                 }
             }
 
@@ -81,7 +91,5 @@ namespace Lab_3
 
             return result;
         }
-
-
     }
 }

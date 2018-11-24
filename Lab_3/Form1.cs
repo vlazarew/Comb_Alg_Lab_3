@@ -5,6 +5,7 @@ using System.Data;
 using System.Drawing;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -27,8 +28,8 @@ namespace Lab_3
         //Матрица смежности графа
         int[,] graph;
 
-
-        int[] temp_array;
+        //Массив с полученными цветами для узлов
+        int[] color_array;
 
         int Count()
         {
@@ -39,22 +40,6 @@ namespace Lab_3
         Color[] colors = new Color[] { Color.Green, Color.Red, Color.Purple, Color.Blue, Color.Yellow, Color.Aqua,
             Color.Maroon, Color.Olive, Color.Navy, Color.Teal, Color.Fuchsia, Color.Lime };
 
-        //Структура, хранящая в себе координаты нашего указателя мыши
-        public struct MouseCoordinates
-        {
-            public int MouseX;
-            public int MouseY;
-        }
-
-        //Получение координат мыши относительно холста для рисования
-        public MouseCoordinates TakeCoordinates()
-        {
-            MouseCoordinates result;
-            result.MouseX = MousePosition.X - this.Location.X - 2 * borderSize.Width - pictureBoxGraph.Location.X; // Позиция мыши на экране - Позиция главной формы на экране - Позиция picturebox на главной форме - 2 границы главной формы
-            result.MouseY = MousePosition.Y - this.Location.Y - captionHeight - pictureBoxGraph.Location.Y; // шапка формы потому что
-            return result;
-        }
-
         public MainForm()
         {
             InitializeComponent();
@@ -64,7 +49,7 @@ namespace Lab_3
             list_of_points = new ListOfPoints();
             graph = new int[0, 0];
             radius = 10;
-            temp_array = new int[0];
+            color_array = new int[0];
         }
 
         private void buttonAbout_Click(object sender, EventArgs e)
@@ -74,16 +59,49 @@ namespace Lab_3
 
         private void buttonRun_Click(object sender, EventArgs e)
         {
-            Algorithms.RunExactSolution(list_of_points, colors, graph, temp_array);
+            if (list_of_points.Count() == 0)
+            {
+                MessageBox.Show(this, "Не указано ни одной вершины графа", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            Thread threadExact = new Thread(RunExact);
+
+            //Thread threadGenetic = new Thread(RunExact);
+
+            threadExact.Start();
+            //threadGenetic.Start();
+        }
+
+        public void RunExact()
+        {
+            ExactAlgorithm algorithms = new ExactAlgorithm(list_of_points, colors, graph, color_array);
+            DateTime start_time = DateTime.Now;
+            algorithms.RunExactSolution();
+            DateTime finish_time = DateTime.Now;
+            textBoxMinChromaticExact.Invoke(new Action(() => { textBoxMinChromaticExact.Text = algorithms.GetMinChromatic().ToString(); }));
+            string total_time = Convert.ToString(finish_time.Subtract(start_time).TotalSeconds);
+            textBoxTimeExact.Invoke(new Action(() => { textBoxTimeExact.Text = total_time; }));
+        }
+
+        public void RunGenetic()
+        {
+            //ExactAlgorithm algorithms = new ExactAlgorithm(list_of_points, colors, graph, color_array);
+            DateTime start_time = DateTime.Now;
+            //algorithms.RunExactSolution();
+            DateTime finish_time = DateTime.Now;
+            //textBoxMinChromaticGenetic.Invoke(new Action(() => { textBoxMinChromaticGenetic.Text = algorithms.GetMinChromatic().ToString(); }));
+            string total_time = Convert.ToString(finish_time.Subtract(start_time).TotalSeconds);
+            textBoxTimeGenetic.Invoke(new Action(() => { textBoxTimeGenetic.Text = total_time; }));
         }
 
         private void pictureBoxGraph_MouseDown(object sender, MouseEventArgs e)
         {
-            MouseCoordinates coordinates = TakeCoordinates();
+            var location = e.Location;
             //Правая кнопка мыши - создание точки
             if (e.Button == MouseButtons.Right)
             {
-                MyPoint myPoint = new MyPoint(coordinates.MouseX, coordinates.MouseY, graphics, radius);
+                MyPoint myPoint = new MyPoint(location.X, location.Y, graphics, radius);
                 if (!list_of_points.Cross(myPoint.GetX(), myPoint.GetY()))
                 {
                     myPoint.Draw(0);
@@ -101,24 +119,19 @@ namespace Lab_3
                             }
                             result[i, count - 1] = 0;
                         }
-                       /* for (int i = 0; i < count - 1; i++)
-                        {
-                            result[i, count - 1] = 0;
-                        }*/
                         graph = result;
 
                         int[] temp_result = new int[count];
                         for (int i = 0; i < count - 2; i++)
                         {
-                            temp_result[i] = temp_array[i];
+                            temp_result[i] = color_array[i];
                         }
-                        //temp_result[count - 1] = 0;
-                        temp_array = temp_result;
+                        color_array = temp_result;
 
                     }
                     else
                     {
-                        temp_array = new int[1];
+                        color_array = new int[1];
                         graph = new int[1, 1];
                     }
                 }
@@ -133,11 +146,9 @@ namespace Lab_3
             //Левая кнопка мыши - выделение узла для установки связи
             if (e.Button == MouseButtons.Left)
             {
-                //MyPoint myPoint = new MyPoint(coordinates.MouseX, coordinates.MouseY, graphics, radius);
-                //MouseCoordinates coordinates = TakeCoordinates();
-                if (list_of_points.Cross(coordinates.MouseX, coordinates.MouseY))
+                if (list_of_points.Cross(location.X, location.Y))
                 {
-                    int i = list_of_points.IndexOfPoint(coordinates.MouseX, coordinates.MouseY);
+                    int i = list_of_points.IndexOfPoint(location.X, location.Y);
                     MyPoint temp = list_of_points.GetPoint(i);
                     temp.SetChoose(true);
                     temp.Draw(0);
@@ -159,23 +170,18 @@ namespace Lab_3
             }
         }
 
-        //Покраска графа с помощью массива цветов
-        public void DrawColor(int[] temp_array)
-        {
-            int count = list_of_points.Count();
-            for (int i = 0; i < count - 1; i++)
-            {
-                MyPoint point = list_of_points.GetPoint(i);
-                point.Draw(1, Color.Black);
-            }
-        }
-
         private void buttonClear_Click(object sender, EventArgs e)
         {
             pictureBoxGraph.Image = null;
             list_of_points = new ListOfPoints();
             graph = new int[0, 0];
-            temp_array = new int[0];
+            color_array = new int[0];
+            textBoxMinChromaticExact.Clear();
+            textBoxMinChromaticGenetic.Clear();
+            textBoxStepsExact.Clear();
+            textBoxStepsGenetic.Clear();
+            textBoxTimeExact.Clear();
+            textBoxTimeGenetic.Clear();
         }
     }
 }
