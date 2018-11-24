@@ -9,32 +9,55 @@ namespace Lab_3
 {
     class MyPoint
     {
-        private const int radius = 15;
+        private int radius;
         private int X;
         private int Y;
         private bool choose;
         private Graphics graphics;
 
-        public MyPoint(int _x, int _y, Graphics _graphics)
+        public MyPoint(int _x, int _y, Graphics _graphics, int _radius)
         {
             X = _x;
             Y = _y;
             choose = false;
             graphics = _graphics;
+            radius = _radius;
         }
 
-        public void Draw(int status)
+        public int GetX()
         {
-            if ((status == 0) || (status == 1))
+            return this.X;
+        }
+
+        public int GetY()
+        {
+            return this.Y;
+        }
+
+        // 0 - заполнить черным цветом (создание вершины)
+        // 1 - заполнить пользовательским цветом при прогоне алгоритма
+        // 2 - сделать цветную окантовку (выделение вершины для соединения)
+        public void Draw(int status, Color _color)
+        {
+            if (status == 0)
             {
                 Pen blackPen = new Pen(Color.Black, 3);
-                graphics.DrawEllipse(blackPen, X - radius, Y - radius, radius, radius);
-                graphics.FillEllipse(Brushes.Black, X - radius, Y - radius, radius, radius);
+                graphics.DrawEllipse(blackPen, X - radius, Y - radius, 2 * radius, 2 * radius);
+                SolidBrush brush = new SolidBrush(_color);
+                graphics.FillEllipse(brush, X - radius, Y - radius, 2 * radius, 2 * radius);
+                //graphics.FillEllipse(Brushes.Black, X - radius, Y - radius, 2 * radius, 2 * radius);
+            }
+            if (status == 1)
+            {
+                Pen blackPen = new Pen(Color.Black, 3);
+                graphics.DrawEllipse(blackPen, X - radius, Y - radius, 2 * radius, 2 * radius);
+                SolidBrush brush = new SolidBrush(_color);
+                graphics.FillEllipse(brush, X - radius, Y - radius, 2 * radius, 2 * radius);
             }
             if (status == 2)
             {
                 Pen redPen = new Pen(Color.Red, 3);
-                graphics.DrawEllipse(redPen, X - radius, Y - radius, radius, radius);
+                graphics.DrawEllipse(redPen, X - radius, Y - radius, 2 * radius, 2 * radius);
             }
         }
 

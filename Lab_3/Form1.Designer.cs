@@ -31,12 +31,13 @@
             this.buttonRun = new System.Windows.Forms.Button();
             this.buttonAbout = new System.Windows.Forms.Button();
             this.pictureBoxGraph = new System.Windows.Forms.PictureBox();
+            this.buttonClear = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBoxGraph)).BeginInit();
             this.SuspendLayout();
             // 
             // buttonRun
             // 
-            this.buttonRun.Location = new System.Drawing.Point(713, 12);
+            this.buttonRun.Location = new System.Drawing.Point(619, 11);
             this.buttonRun.Name = "buttonRun";
             this.buttonRun.Size = new System.Drawing.Size(75, 23);
             this.buttonRun.TabIndex = 0;
@@ -46,7 +47,7 @@
             // 
             // buttonAbout
             // 
-            this.buttonAbout.Location = new System.Drawing.Point(626, 12);
+            this.buttonAbout.Location = new System.Drawing.Point(538, 12);
             this.buttonAbout.Name = "buttonAbout";
             this.buttonAbout.Size = new System.Drawing.Size(75, 23);
             this.buttonAbout.TabIndex = 1;
@@ -59,18 +60,29 @@
             this.pictureBoxGraph.BackColor = System.Drawing.Color.White;
             this.pictureBoxGraph.Cursor = System.Windows.Forms.Cursors.Default;
             this.pictureBoxGraph.Location = new System.Drawing.Point(11, 11);
-            this.pictureBoxGraph.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.pictureBoxGraph.Margin = new System.Windows.Forms.Padding(2);
             this.pictureBoxGraph.Name = "pictureBoxGraph";
             this.pictureBoxGraph.Size = new System.Drawing.Size(522, 382);
             this.pictureBoxGraph.TabIndex = 2;
             this.pictureBoxGraph.TabStop = false;
             this.pictureBoxGraph.MouseDown += new System.Windows.Forms.MouseEventHandler(this.pictureBoxGraph_MouseDown);
             // 
+            // buttonClear
+            // 
+            this.buttonClear.Location = new System.Drawing.Point(538, 41);
+            this.buttonClear.Name = "buttonClear";
+            this.buttonClear.Size = new System.Drawing.Size(75, 23);
+            this.buttonClear.TabIndex = 3;
+            this.buttonClear.Text = "Очистить";
+            this.buttonClear.UseVisualStyleBackColor = true;
+            this.buttonClear.Click += new System.EventHandler(this.buttonClear_Click);
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(781, 444);
+            this.ClientSize = new System.Drawing.Size(714, 444);
+            this.Controls.Add(this.buttonClear);
             this.Controls.Add(this.pictureBoxGraph);
             this.Controls.Add(this.buttonAbout);
             this.Controls.Add(this.buttonRun);
@@ -86,6 +98,7 @@
         private System.Windows.Forms.Button buttonRun;
         private System.Windows.Forms.Button buttonAbout;
         private System.Windows.Forms.PictureBox pictureBoxGraph;
+        private System.Windows.Forms.Button buttonClear;
     }
 }
 

@@ -15,6 +15,11 @@ namespace Lab_3
             list_of_points = new List<MyPoint>();
         }
 
+        public int Count()
+        {
+            return list_of_points.Count;
+        }
+
         public MyPoint GetPoint(int index)
         {
             MyPoint result = list_of_points.ElementAt(index);
@@ -39,7 +44,7 @@ namespace Lab_3
         public int IndexOfPoint(int x, int y)
         {
             int i = 0;
-            int count = list_of_points.Count;
+            int count = this.Count();
             bool ok = false;
 
             while ((!ok) && (i != count))
@@ -61,7 +66,7 @@ namespace Lab_3
         public bool Cross(int x, int y)
         {
             int i = 0;
-            int count = list_of_points.Count;
+            int count = this.Count();
             bool ok = false;
 
             while ((!ok) && (i != count))
@@ -72,11 +77,11 @@ namespace Lab_3
             return ok;
         }
 
-        public int Quant()
+        public int Selected()
         {
             int result = 0;
             int i = 0;
-            int count = list_of_points.Count;
+            int count = this.Count();
 
             while (i != count && result != 2)
             {
@@ -93,11 +98,11 @@ namespace Lab_3
         {
             int i = 0;
             int result = 1;
-            int count = list_of_points.Count;
+            int count = this.Count();
 
             while (i != count && result != -1)
             {
-                if(list_of_points[i].GetChoose())
+                if (list_of_points[i].GetChoose())
                 {
                     result = i;
                 }
