@@ -50,7 +50,6 @@ namespace Lab_3
             for (int i = 0; i <= count - 1; i++)
             {
                 color_array[i] = 0;
-
             }
 
             for (int i = 0; i <= count - 1; i++)

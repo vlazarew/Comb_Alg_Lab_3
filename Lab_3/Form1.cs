@@ -14,7 +14,7 @@ namespace Lab_3
     public partial class MainForm : Form
     {
         //Поле, в котором мы рисуем
-        Graphics graphics;
+        Graphics graphicsExact, graphicsGenetic;
         //Высота окна главной формы
         int captionHeight;
         //Границы главной формы
@@ -23,17 +23,17 @@ namespace Lab_3
         int radius;
 
         //Список вершин графа
-        ListOfPoints list_of_points;
+        ListOfPoints list_of_points_exact, list_of_points_genetic;
 
         //Матрица смежности графа
         int[,] graph;
 
         //Массив с полученными цветами для узлов
-        int[] color_array;
+        int[] color_array_exact, color_array_genetic;
 
         int Count()
         {
-            return list_of_points.Count();
+            return list_of_points_exact.Count();
         }
 
         //Цвета, в которые будет краситься граф
@@ -43,13 +43,18 @@ namespace Lab_3
         public MainForm()
         {
             InitializeComponent();
-            graphics = pictureBoxGraph.CreateGraphics();
+
+            graphicsExact = pictureBoxGraph.CreateGraphics();
+            graphicsGenetic = pictureBoxGenetic.CreateGraphics();
+
             captionHeight = SystemInformation.CaptionHeight;
             borderSize = SystemInformation.BorderSize;
-            list_of_points = new ListOfPoints();
+            list_of_points_exact = new ListOfPoints();
+            list_of_points_genetic = new ListOfPoints();
             graph = new int[0, 0];
             radius = 10;
-            color_array = new int[0];
+            color_array_exact = new int[0];
+            color_array_genetic = new int[0];
         }
 
         private void buttonAbout_Click(object sender, EventArgs e)
@@ -59,7 +64,7 @@ namespace Lab_3
 
         private void buttonRun_Click(object sender, EventArgs e)
         {
-            if (list_of_points.Count() == 0)
+            if (list_of_points_exact.Count() == 0)
             {
                 MessageBox.Show(this, "Не указано ни одной вершины графа", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
@@ -67,15 +72,15 @@ namespace Lab_3
 
             Thread threadExact = new Thread(RunExact);
 
-            //Thread threadGenetic = new Thread(RunExact);
+            Thread threadGenetic = new Thread(RunGenetic);
 
             threadExact.Start();
-            //threadGenetic.Start();
+            threadGenetic.Start();
         }
 
         public void RunExact()
         {
-            ExactAlgorithm algorithms = new ExactAlgorithm(list_of_points, colors, graph, color_array);
+            ExactAlgorithm algorithms = new ExactAlgorithm(list_of_points_exact, colors, graph, color_array_exact);
             DateTime start_time = DateTime.Now;
             algorithms.RunExactSolution();
             DateTime finish_time = DateTime.Now;
@@ -86,13 +91,21 @@ namespace Lab_3
 
         public void RunGenetic()
         {
-            //ExactAlgorithm algorithms = new ExactAlgorithm(list_of_points, colors, graph, color_array);
+            // Количество особей в популяции
+            int population_size = (int)numericUpDownCountChildren.Value;
+            // Количество поколений
+            int count_of_generations = (int)numericUpDownCountGenerations.Value;
+
+            GeneticAlgorithm algorithms = new GeneticAlgorithm(list_of_points_genetic, colors, graph, color_array_genetic,
+                population_size, count_of_generations);
+
             DateTime start_time = DateTime.Now;
-            //algorithms.RunExactSolution();
+            algorithms.RunGeneticSolution();
             DateTime finish_time = DateTime.Now;
-            //textBoxMinChromaticGenetic.Invoke(new Action(() => { textBoxMinChromaticGenetic.Text = algorithms.GetMinChromatic().ToString(); }));
+            textBoxMinChromaticGenetic.Invoke(new Action(() => { textBoxMinChromaticGenetic.Text = algorithms.GetMinChromatic().ToString(); }));
             string total_time = Convert.ToString(finish_time.Subtract(start_time).TotalSeconds);
             textBoxTimeGenetic.Invoke(new Action(() => { textBoxTimeGenetic.Text = total_time; }));
+            pictureBoxGenetic.Invoke(new Action(() => { pictureBoxGenetic.Visible = true; }));
         }
 
         private void pictureBoxGraph_MouseDown(object sender, MouseEventArgs e)
@@ -101,15 +114,18 @@ namespace Lab_3
             //Правая кнопка мыши - создание точки
             if (e.Button == MouseButtons.Right)
             {
-                MyPoint myPoint = new MyPoint(location.X, location.Y, graphics, radius);
-                if (!list_of_points.Cross(myPoint.GetX(), myPoint.GetY()))
+                MyPoint myPointExact = new MyPoint(location.X, location.Y, graphicsExact, radius);
+                MyPoint myPointGenetic = new MyPoint(location.X, location.Y, graphicsGenetic, radius);
+                if (!list_of_points_exact.Cross(myPointExact.GetX(), myPointExact.GetY()))
                 {
-                    myPoint.Draw(0);
-                    list_of_points.Add(myPoint);
+                    myPointExact.Draw(0);
+                    myPointGenetic.Draw(0);
+                    list_of_points_exact.Add(myPointExact);
+                    list_of_points_genetic.Add(myPointGenetic);
 
                     if (graph.Length > 0)
                     {
-                        int count = list_of_points.Count();
+                        int count = list_of_points_exact.Count();
                         int[,] result = new int[count, count];
                         for (int i = 0; i < count - 1; i++)
                         {
@@ -121,48 +137,68 @@ namespace Lab_3
                         }
                         graph = result;
 
-                        int[] temp_result = new int[count];
+                        int[] temp_result_exact = new int[count];
                         for (int i = 0; i < count - 2; i++)
                         {
-                            temp_result[i] = color_array[i];
+                            temp_result_exact[i] = color_array_exact[i];
                         }
-                        color_array = temp_result;
+                        color_array_exact = temp_result_exact;
 
+                        int[] temp_result_genetic = new int[count];
+                        for (int i = 0; i < count - 2; i++)
+                        {
+                            temp_result_genetic[i] = color_array_genetic[i];
+                        }
+                        color_array_genetic = temp_result_genetic;
                     }
                     else
                     {
-                        color_array = new int[1];
+                        color_array_exact = new int[1];
+                        color_array_genetic = new int[1];
                         graph = new int[1, 1];
                     }
                 }
                 else
                 {
-                    int i = list_of_points.IndexOfPoint(myPoint.GetX(), myPoint.GetY());
-                    MyPoint temp = list_of_points.GetPoint(i);
+                    int i = list_of_points_exact.IndexOfPoint(myPointExact.GetX(), myPointExact.GetY());
+                    MyPoint temp = list_of_points_exact.GetPoint(i);
+                    MyPoint temp_genetic = list_of_points_genetic.GetPoint(i);
                     temp.SetChoose(false);
+                    temp_genetic.SetChoose(false);
                     temp.Draw(0);
+                    temp_genetic.Draw(0);
                 }
             }
             //Левая кнопка мыши - выделение узла для установки связи
             if (e.Button == MouseButtons.Left)
             {
-                if (list_of_points.Cross(location.X, location.Y))
+                if (list_of_points_exact.Cross(location.X, location.Y))
                 {
-                    int i = list_of_points.IndexOfPoint(location.X, location.Y);
-                    MyPoint temp = list_of_points.GetPoint(i);
+                    int i = list_of_points_exact.IndexOfPoint(location.X, location.Y);
+                    MyPoint temp = list_of_points_exact.GetPoint(i);
+                    MyPoint temp_genetic = list_of_points_genetic.GetPoint(i);
                     temp.SetChoose(true);
+                    temp_genetic.SetChoose(true);
                     temp.Draw(0);
+                    temp_genetic.Draw(0);
                     temp.Draw(2);
-                    if (list_of_points.Selected() == 2)
+                    temp_genetic.Draw(2);
+                    if (list_of_points_exact.Selected() == 2)
                     {
                         temp.Draw(0);
+                        temp_genetic.Draw(0);
                         temp.SetChoose(false);
-                        int j = list_of_points.GetChoosen();
-                        MyPoint temp_point_2 = list_of_points.GetPoint(j);
+                        temp_genetic.SetChoose(false);
+                        int j = list_of_points_exact.GetChoosen();
+                        MyPoint temp_point_2 = list_of_points_exact.GetPoint(j);
+                        MyPoint temp_point_2_genetic = list_of_points_genetic.GetPoint(j);
                         temp_point_2.Draw(0);
+                        temp_point_2_genetic.Draw(0);
                         temp_point_2.SetChoose(false);
+                        temp_point_2_genetic.SetChoose(false);
                         Pen pen_line = new Pen(Color.Black, 2);
-                        graphics.DrawLine(pen_line, temp.GetX(), temp.GetY(), temp_point_2.GetX(), temp_point_2.GetY());
+                        graphicsExact.DrawLine(pen_line, temp.GetX(), temp.GetY(), temp_point_2.GetX(), temp_point_2.GetY());
+                        graphicsGenetic.DrawLine(pen_line, temp_genetic.GetX(), temp_genetic.GetY(), temp_point_2_genetic.GetX(), temp_point_2_genetic.GetY());
                         graph[i, j] = 1;
                         graph[j, i] = 1;
                     }
@@ -173,15 +209,15 @@ namespace Lab_3
         private void buttonClear_Click(object sender, EventArgs e)
         {
             pictureBoxGraph.Image = null;
-            list_of_points = new ListOfPoints();
+            list_of_points_exact = new ListOfPoints();
             graph = new int[0, 0];
-            color_array = new int[0];
+            color_array_exact = new int[0];
+            color_array_genetic = new int[0];
             textBoxMinChromaticExact.Clear();
             textBoxMinChromaticGenetic.Clear();
-            textBoxStepsExact.Clear();
-            textBoxStepsGenetic.Clear();
             textBoxTimeExact.Clear();
             textBoxTimeGenetic.Clear();
+            pictureBoxGenetic.Image = null;
         }
     }
 }
