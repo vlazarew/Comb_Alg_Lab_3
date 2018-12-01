@@ -71,8 +71,10 @@ namespace Lab_3
             }
 
             Thread threadExact = new Thread(RunExact);
+            threadExact.Name = "Exact Solution";
 
             Thread threadGenetic = new Thread(RunGenetic);
+            threadGenetic.Name = "Genetic Solution";
 
             threadExact.Start();
             threadGenetic.Start();
@@ -95,10 +97,13 @@ namespace Lab_3
             int population_size = (int)numericUpDownCountChildren.Value;
             // Количество поколений
             int count_of_generations = (int)numericUpDownCountGenerations.Value;
+            // Вероятность мутаций
+            double mutations = (double)numericUpDownMutations.Value;
 
             GeneticAlgorithm algorithms = new GeneticAlgorithm(list_of_points_genetic, colors, graph, color_array_genetic,
-                population_size, count_of_generations);
+                population_size, count_of_generations, mutations);
 
+            textBoxMinChromaticGenetic.Invoke(new Action(() => { textBoxMinChromaticGenetic.Text = "Вычисление"; }));
             DateTime start_time = DateTime.Now;
             algorithms.RunGeneticSolution();
             DateTime finish_time = DateTime.Now;
@@ -210,6 +215,7 @@ namespace Lab_3
         {
             pictureBoxGraph.Image = null;
             list_of_points_exact = new ListOfPoints();
+            list_of_points_genetic = new ListOfPoints();
             graph = new int[0, 0];
             color_array_exact = new int[0];
             color_array_genetic = new int[0];

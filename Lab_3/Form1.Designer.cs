@@ -226,7 +226,7 @@
             this.numericUpDownCountChildren.Size = new System.Drawing.Size(133, 22);
             this.numericUpDownCountChildren.TabIndex = 24;
             this.numericUpDownCountChildren.Value = new decimal(new int[] {
-            10,
+            50,
             0,
             0,
             0});

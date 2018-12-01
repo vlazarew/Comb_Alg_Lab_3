@@ -8,48 +8,118 @@ namespace Lab_3
 {
     class ChildOfPopulation
     {
+        //Раскраска
         private int[] color_array;
+        //Граф
         private int[,] graph;
+        //Значение приспособленности данной раскраски
         private int valid;
+
+        //Шанс попасть в селекцию
+        private double chance;
+
+        private bool cancross;
 
         private Random random = new Random();
 
+        public int Valid
+        {
+            get { return valid; }
+        }
+
+        public int[] Color_Array
+        {
+            get { return color_array; }
+            set { color_array = value; }
+        }
+
+        /*public int Color
+        {
+            get { return color_array[index]; }
+            set { color_array[index] = value; }
+        }*/
+
+        public double Chance
+        {
+            get { return chance; }
+            set { chance = value; }
+        }
+
+        public bool CanCross
+        {
+            get { return cancross; }
+            set { cancross = value; }
+        }
+
+        //Конструктор
         public ChildOfPopulation(int[] _color_array, int[,] _graph)
         {
             color_array = _color_array;
             graph = _graph;
+            valid = 100;
+            CanCross = false;
         }
 
-        public int FindSuitability()
+        //Оценка приспособленности раскраски из популяции
+        public void FindSuitability()
         {
-            bool CanBe = true;
+            //Возможна ли такая раскраска вообще
+            //bool CanBe = true;
+            //Список цветов, задействованных в раскраске графа
             List<int> colors = new List<int>();
-            int count_of_colors = 0;
+            valid = 100;
 
-            for (int i = 0; i < color_array.Length && CanBe; i++)
+            for (int i = 0; i < color_array.Length/* && CanBe*/; i++)
             {
+                //Если такой цвет уже встречался в наборе
                 if (colors.Contains(color_array[i]))
                 {
-                    int[] source = color_array;
+                    //int[] source = color_array;
+                    int[] source = new int[color_array.Length];
+                    Array.Copy(color_array, source, source.Length);
                     int[] temp;
-                    do
+                    //Проверяем, что 2 вершины не покрашены в один цвет
+                    // do
+                    //{
+                    List<int> tmp = new List<int>();
+                    foreach (int el in source)
                     {
-                        int index = colors.IndexOf(source[i]);
-                        temp = new int[source.Length - index];
-                        Array.Copy(source, index, temp, 0, temp.Length);
-                        if (graph[i, index] == 1)
+                        if (tmp.Contains(el))
                         {
-                            CanBe = false;
-                            return valid = 100;
+                            int index = colors.IndexOf(source[i]);
+                            if (index != -1)
+                            {
+                                //Если все таки это так
+                                if (graph[i, index] == 1)
+                                {
+                                    //То такая раскраска не имеет права на существование
+                                    //CanBe = false;
+                                    // valid = 0 - не существует
+                                    valid = 0;
+                                    return;
+                                }
+                                temp = new int[source.Length - index - 1];
+                                Array.Copy(source, index + 1, temp, 0, temp.Length);
+                               // source = temp;
+                            }
                         }
-                        source = temp;
-                    } while (temp.Contains(color_array[i]));
+                        else
+                        {
+                            tmp.Add(el);
+                        }
+                    }
 
+                    //                    } while (source.Contains(color_array[i]));
+                }
+                //Иначе просто добавляем цвет в список
+                else
+                {
+                    colors.Add(color_array[i]);
+                    //Чем ближе valid к 100, тем лучше
+                    valid -= 2;
                 }
             }
-
-
-            return valid;
         }
+
     }
 }
